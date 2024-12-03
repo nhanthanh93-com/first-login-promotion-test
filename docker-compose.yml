@@ -1,0 +1,64 @@
+version: "3.8"
+
+networks:
+  ta_network:
+    name: ta_network
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+  ta_app:
+    image: golang:1.21-alpine
+    container_name: ta_app
+    build:
+      context: .
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/opt/app/api
+      - ./go.sh:/home/go/go.sh
+    entrypoint: [ "sh", "-c", "chmod 777 /home/go/go.sh && sh /home/go/go.sh && tail -f /dev/null" ]
+    depends_on:
+      - ta_redis
+      - ta_postgres
+    environment:
+      GO111MODULE: "on"
+      config: ${APP_CONFIG}
+      PORT: ${PORT}
+      env: dev
+      port: 9888
+      version: 1.0.0
+      protocol: HTTP
+    working_dir: /opt/app/api
+    restart: unless-stopped
+    networks:
+      - ta_network
+
+  ta_redis:
+    container_name: redis
+    hostname: redis
+    image: redis:alpine
+    ports:
+      - "6380:6379"
+    restart: always
+    networks:
+      - ta_network
+
+  ta_postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres_data:/data/postgres
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - ta_network
+    restart: unless-stopped
