@@ -1,0 +1,768 @@
+basePath: /
+definitions:
+  model.Campaign:
+    properties:
+      created_at:
+        type: string
+      discount:
+        type: integer
+      expires_at:
+        type: string
+      id:
+        type: string
+      max_user:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      vouchers:
+        items:
+          $ref: '#/definitions/model.Voucher'
+        type: array
+    required:
+    - max_user
+    - name
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      register_at:
+        type: string
+      updated_at:
+        type: string
+      vouchers:
+        items:
+          $ref: '#/definitions/model.Voucher'
+        type: array
+    required:
+    - email
+    type: object
+  model.Voucher:
+    properties:
+      campaign:
+        $ref: '#/definitions/model.Campaign'
+      code:
+        type: string
+      created_at:
+        type: string
+      discount:
+        type: integer
+      expires_at:
+        type: string
+      id:
+        type: string
+      is_used:
+        type: boolean
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    required:
+    - code
+    type: object
+  request.CCampaignReq:
+    properties:
+      expires_at:
+        type: string
+      max_user:
+        type: integer
+      name:
+        type: string
+    required:
+    - expires_at
+    - max_user
+    - name
+    type: object
+  request.CUserReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.RUserReq:
+    properties:
+      campaign_id:
+        type: string
+      email:
+        type: string
+    required:
+    - campaign_id
+    - email
+    type: object
+  request.UCampaignReq:
+    properties:
+      max_user:
+        type: integer
+      name:
+        type: string
+    required:
+    - max_user
+    - name
+    type: object
+  request.UUserReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.UVoucherReq:
+    properties:
+      is_used:
+        type: boolean
+    required:
+    - is_used
+    type: object
+  response.Pagination:
+    properties:
+      current_page:
+        type: integer
+      per_page:
+        type: integer
+      total_item:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  response.Response-any:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-model_Campaign:
+    properties:
+      data:
+        $ref: '#/definitions/model.Campaign'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-model_User:
+    properties:
+      data:
+        $ref: '#/definitions/model.User'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-model_Voucher:
+    properties:
+      data:
+        $ref: '#/definitions/model.Voucher'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-response_ResponseData-array_model_Campaign:
+    properties:
+      data:
+        $ref: '#/definitions/response.ResponseData-array_model_Campaign'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-response_ResponseData-array_model_User:
+    properties:
+      data:
+        $ref: '#/definitions/response.ResponseData-array_model_User'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-response_ResponseData-array_model_Voucher:
+    properties:
+      data:
+        $ref: '#/definitions/response.ResponseData-array_model_Voucher'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.ResponseData-array_model_Campaign:
+    properties:
+      pagination:
+        $ref: '#/definitions/response.Pagination'
+      results:
+        items:
+          $ref: '#/definitions/model.Campaign'
+        type: array
+    type: object
+  response.ResponseData-array_model_User:
+    properties:
+      pagination:
+        $ref: '#/definitions/response.Pagination'
+      results:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+    type: object
+  response.ResponseData-array_model_Voucher:
+    properties:
+      pagination:
+        $ref: '#/definitions/response.Pagination'
+      results:
+        items:
+          $ref: '#/definitions/model.Voucher'
+        type: array
+    type: object
+host: localhost:9888
+info:
+  contact: {}
+  description: Develop a promotional campaign system for the Trinity app, enabling
+    a 30% discount on Silver subscription plans for the first 100 users registering
+    via campaign links. The system will generate time-limited vouchers to ensure efficient
+    campaign management and user engagement.
+  title: API Documentation
+  version: "1.0"
+paths:
+  /campaigns/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete campaign details based on the campaign ID.
+      parameters:
+      - description: Campaign ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Delete campaign information
+      tags:
+      - campaigns
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a campaign based on the campaign ID.
+      parameters:
+      - description: Campaign ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get campaign by ID
+      tags:
+      - campaigns
+    put:
+      consumes:
+      - application/json
+      description: Update campaign details based on the campaign ID.
+      parameters:
+      - description: Campaign ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Campaign information
+        in: body
+        name: campaign
+        required: true
+        schema:
+          $ref: '#/definitions/request.UCampaignReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Update campaign information
+      tags:
+      - campaigns
+  /campaigns/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new campaign with the provided campaign information.
+      parameters:
+      - description: Campaign information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.CCampaignReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Campaign'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Create a new campaign
+      tags:
+      - campaigns
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a user based on the provided user ID.
+      parameters:
+      - description: User ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a user based on the user ID.
+      parameters:
+      - description: User ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user details based on the user ID.
+      parameters:
+      - description: User ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.UUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Update user information
+      tags:
+      - users
+  /users/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with the provided user information.
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.CUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Create a new user
+      tags:
+      - users
+  /users/list:
+    get:
+      consumes:
+      - application/json
+      description: API Get list all users
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit of users per page
+        in: query
+        name: limit
+        type: integer
+      - description: email
+        example: '"john.doe@example.com"'
+        in: query
+        name: email
+        type: string
+      - description: vouchers
+        example: '"Tkv5bqH9Y4fdd0CjhGvBo, 2KOf7dAhJVRBKCbmZ8J9i"'
+        in: query
+        name: vouchers
+        type: string
+      - description: Start date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: start_date
+        type: string
+      - description: End date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-response_ResponseData-array_model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get list all users
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided registration details, such
+        as email and campaign ID.
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.RUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Register a new user
+      tags:
+      - users
+  /vouchers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete voucher details based on the campaign ID.
+      parameters:
+      - description: Voucher ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Voucher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Delete voucher information
+      tags:
+      - vouchers
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a voucher based on the voucher ID.
+      parameters:
+      - description: Voucher ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Voucher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get voucher by ID
+      tags:
+      - vouchers
+    put:
+      consumes:
+      - application/json
+      description: Update voucher details based on the voucher ID.
+      parameters:
+      - description: Voucher ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Voucher information
+        in: body
+        name: voucher
+        required: true
+        schema:
+          $ref: '#/definitions/request.UVoucherReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Voucher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Update voucher information
+      tags:
+      - vouchers
+  /vouchers/list:
+    get:
+      consumes:
+      - application/json
+      description: API Get list all vouchers
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit of users per page
+        in: query
+        name: limit
+        type: integer
+      - description: code
+        in: query
+        name: code
+        type: string
+      - description: Start date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: start_date
+        type: string
+      - description: End date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-response_ResponseData-array_model_Voucher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get list all vouchers
+      tags:
+      - vouchers
+swagger: "2.0"

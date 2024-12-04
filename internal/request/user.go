@@ -92,7 +92,7 @@ func (r *LUserReq) Bind(c *gin.Context) (*LUserReq, error) {
 }
 
 type UUserReq struct {
-	ID    string `json:"id,omitempty" form:"id" validate:"required"`
+	ID    string `json:"-,omitempty" form:"id" validate:"required"`
 	Email string `json:"email,omitempty" form:"email" validate:"required"`
 }
 

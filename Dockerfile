@@ -23,7 +23,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main ./cmd/main.go
+RUN go build -o main ./main.go
 
 # Command to run the executable
 CMD ["air"]

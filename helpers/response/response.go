@@ -3,35 +3,59 @@ package response
 import (
 	"errors"
 	"gorm.io/gorm"
+	"math"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-type Response struct {
-	Status  string      `json:"status"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
+type Pagination struct {
+	CurrentPage int32 `json:"current_page"`
+	PerPage     int32 `json:"per_page"`
+	TotalItem   int64 `json:"total_item"`
+	TotalPage   int32 `json:"total_page"`
+}
+
+type Response[T any] struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Data    *T     `json:"data,omitempty"`
+}
+
+type ResponseData[T any] struct {
+	Pagination Pagination `json:"pagination"`
+	Results    *T         `json:"results"`
+}
+
+func PaginationResponse(page, limit, perPage int32, totalItems int64) Pagination {
+	totalPage := int32(math.Ceil(float64(totalItems) / float64(limit)))
+
+	return Pagination{
+		CurrentPage: page,
+		PerPage:     perPage,
+		TotalPage:   totalPage,
+		TotalItem:   totalItems,
+	}
 }
 
 func mapStatusText(statusCode int) string {
 	return strings.ReplaceAll(strings.ToUpper(http.StatusText(statusCode)), " ", "_")
 }
 
-func SuccessResponse(c *gin.Context, message string, data interface{}) {
-	c.JSON(http.StatusOK, Response{
+func SuccessResponse[T any](c *gin.Context, message string, data T) {
+	c.JSON(http.StatusOK, Response[T]{
 		Status:  "OK",
 		Message: message,
-		Data:    data,
+		Data:    &data,
 	})
 }
 
 func ErrorResponse(c *gin.Context, statusCode int, message string, data interface{}) {
-	c.JSON(statusCode, Response{
+	c.JSON(statusCode, Response[interface{}]{
 		Status:  mapStatusText(statusCode),
 		Message: message,
-		Data:    data,
+		Data:    &data,
 	})
 }
 

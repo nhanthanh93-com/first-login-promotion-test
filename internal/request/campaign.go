@@ -12,6 +12,7 @@ type CCampaignReq struct {
 	Name      string    `json:"name,omitempty" form:"name" validate:"required"`
 	MaxUser   int32     `json:"max_user,omitempty" form:"max_user" validate:"required"`
 	ExpiresAt time.Time `json:"expires_at,omitempty" form:"expires_at" validate:"required"`
+	Discount  int32     `json:"discount,omitempty" form:"discount" validate:"required"`
 }
 
 func (r *CCampaignReq) Bind(c *gin.Context) (*CCampaignReq, error) {
@@ -21,7 +22,6 @@ func (r *CCampaignReq) Bind(c *gin.Context) (*CCampaignReq, error) {
 	if err := helpers.Validate(r); err != nil {
 		return nil, err
 	}
-
 	return r, nil
 }
 
@@ -76,7 +76,7 @@ func (r *LCampaignReq) Bind(c *gin.Context) (*LCampaignReq, error) {
 }
 
 type UCampaignReq struct {
-	ID      string `json:"id,omitempty" form:"id" validate:"required"`
+	ID      string `json:"-,omitempty" form:"id" validate:"required"`
 	Name    string `json:"name,omitempty" form:"name" validate:"required"`
 	MaxUser int32  `json:"max_user,omitempty" form:"max_user" validate:"required"`
 }

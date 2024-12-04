@@ -79,6 +79,7 @@ func (r *userRepository) Register(req *request.RUserReq) (*model.User, error) {
 	voucher.CampaignID = campaign.ID
 	voucher.UserID = user.ID
 	voucher.ExpiresAt = campaign.ExpiresAt
+	voucher.Discount = campaign.Discount
 	if err = model.DBVouchers.DB.Model(&voucher).WithContext(ctx).
 		Create(&voucher).Error; err != nil {
 		return nil, err

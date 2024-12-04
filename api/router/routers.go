@@ -1,4 +1,4 @@
-package api
+package router
 
 import (
 	"github.com/gin-contrib/logger"
@@ -9,8 +9,8 @@ import (
 	"trinity/api/middleware"
 	"trinity/api/repository"
 	"trinity/api/service"
-	"trinity/cmd/docs"
 	"trinity/configs"
+	"trinity/docs"
 	"trinity/helpers/response"
 	"trinity/pkg/app"
 )
@@ -53,29 +53,11 @@ func NewRouter(
 	return router
 }
 
-// PingExample godoc
-// @Summary ping example
-// @Schemes
-// @Description do ping
-// @Tags example
-// @Accept json
-// @Produce json
-// @Success 200 {string} Helloworld
-// @Router /example/helloworld [get]
-func Ping(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "pongs",
-	})
-}
-
 func setApiGroupRoutes(
 	router *gin.Engine,
 	appConfig *app.Config,
 ) *gin.RouterGroup {
 	groups := router.Group(BasePath)
-
-	pings := groups.Group("/ping")
-	pings.GET("", Ping)
 
 	userRepo := repository.NewUserRepository(appConfig)
 	userService := service.NewUserService(userRepo)

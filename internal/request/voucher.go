@@ -70,7 +70,7 @@ func (r *LVoucherReq) Bind(c *gin.Context) (*LVoucherReq, error) {
 }
 
 type UVoucherReq struct {
-	ID     string `json:"id" form:"id" validate:"required"`
+	ID     string `json:"-" form:"id" validate:"required"`
 	IsUsed *bool  `json:"is_used,omitempty" form:"is_used" validate:"required"`
 }
 

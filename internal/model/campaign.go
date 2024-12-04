@@ -11,6 +11,7 @@ type Campaign struct {
 	Name      string     `json:"name,omitempty" gorm:"column:name;" validate:"required"`
 	MaxUser   int32      `json:"max_user,omitempty" gorm:"column:max_user;" validate:"required"`
 	ExpiresAt time.Time  `json:"expires_at,omitempty" gorm:"column:expires_at;default:current_timestamp"`
+	Discount  int32      `json:"discount,omitempty" gorm:"column:discount;default:0"`
 	Vouchers  []*Voucher `json:"vouchers,omitempty" gorm:"foreignKey:CampaignID"`
 }
 
