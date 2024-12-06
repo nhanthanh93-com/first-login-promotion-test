@@ -12,9 +12,9 @@ import (
 
 type UserRepository interface {
 	Register(req *request.RUserReq) (*model.User, error)
-	Create(m model.User) (*model.User, error)
+	Create(user model.User) (*model.User, error)
 	Find(id string) (*model.User, error)
-	List(r *request.LUserReq) ([]*model.User, error)
+	List(req *request.LUserReq) ([]*model.User, error)
 	Count(req *request.LUserReq) (int64, error)
 	Update(user model.User) (*model.User, error)
 	Delete(id string) (bool, error)
@@ -88,6 +88,7 @@ func (r *userRepository) Register(req *request.RUserReq) (*model.User, error) {
 	voucher.User = nil
 
 	user.Vouchers = append(user.Vouchers, &voucher)
+
 	return user, nil
 }
 
@@ -107,6 +108,8 @@ func (r *userRepository) Find(id string) (*model.User, error) {
 	defer cancel()
 	var user model.User
 	if err := model.DBUsers.DB.Model(&model.User{}).WithContext(ctx).
+		Preload("Cart").
+		Preload("Vouchers").
 		Where("id = ?", id).
 		Find(&user).
 		First(&user).

@@ -60,16 +60,18 @@ func setApiGroupRoutes(
 	groups := router.Group(BasePath)
 
 	userRepo := repository.NewUserRepository(appConfig)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(appConfig, userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
 	user := groups.Group("/users")
-	user.POST("/register", userHandler.Register)
 	user.POST("/create", userHandler.Create)
 	user.GET("/:id", userHandler.Find)
 	user.GET("/list", userHandler.List)
 	user.PUT("/:id", userHandler.Update)
 	user.DELETE("/:id", userHandler.Delete)
+
+	promo := groups.Group("/promo")
+	promo.POST("/register", userHandler.Register)
 
 	campaignRepo := repository.NewCampaignRepository(appConfig)
 	campaignService := service.NewCampaignService(campaignRepo)
@@ -92,6 +94,29 @@ func setApiGroupRoutes(
 	voucher.GET("/list", voucherHandler.List)
 	voucher.PUT("/:id", voucherHandler.Update)
 	voucher.DELETE("/:id", voucherHandler.Delete)
+
+	productRepo := repository.NewProductRepository(appConfig)
+	productService := service.NewProductService(productRepo)
+	productHandler := handler.NewProductHandler(productService)
+
+	product := groups.Group("/products")
+	product.POST("/create", productHandler.Create)
+	product.GET("/:id", productHandler.Find)
+	product.GET("/list", productHandler.List)
+	product.PUT("/:id", productHandler.Update)
+	product.DELETE("/:id", productHandler.Delete)
+
+	cartRepo := repository.NewCartRepository(appConfig)
+	cartService := service.NewCartService(appConfig, cartRepo)
+	cartHandler := handler.NewCartHandler(cartService)
+
+	cart := groups.Group("/carts")
+	cart.GET("/:id", cartHandler.Find)
+	cart.DELETE("/id", cartHandler.DeleteCartItem)
+
+	order := groups.Group("/order")
+	order.POST("/:user_id", cartHandler.CreateOrder)
+	order.PUT("/:id/status", cartHandler.UpdateOrderStatus)
 
 	return groups
 }

@@ -14,6 +14,10 @@ definitions:
         type: integer
       name:
         type: string
+      products:
+        items:
+          $ref: '#/definitions/model.Product'
+        type: array
       updated_at:
         type: string
       vouchers:
@@ -24,8 +28,76 @@ definitions:
     - max_user
     - name
     type: object
+  model.Cart:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/model.CartItem'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  model.CartItem:
+    properties:
+      cart_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.Order:
+    properties:
+      created_at:
+        type: integer
+      id:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+      updated_at:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  model.Product:
+    properties:
+      campaigns:
+        items:
+          $ref: '#/definitions/model.Campaign'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - name
+    type: object
   model.User:
     properties:
+      cart:
+        $ref: '#/definitions/model.Cart'
       created_at:
         type: string
       email:
@@ -66,8 +138,23 @@ definitions:
     required:
     - code
     type: object
+  request.AddToCartReq:
+    properties:
+      cart_id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - cart_id
+    - product_id
+    - quantity
+    type: object
   request.CCampaignReq:
     properties:
+      discount:
+        type: integer
       expires_at:
         type: string
       max_user:
@@ -75,9 +162,36 @@ definitions:
       name:
         type: string
     required:
+    - discount
     - expires_at
     - max_user
     - name
+    type: object
+  request.COrderReq:
+    properties:
+      cart_id:
+        type: string
+      status:
+        type: string
+      total:
+        type: number
+    required:
+    - cart_id
+    - status
+    - total
+    type: object
+  request.CProductReq:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    required:
+    - name
+    - price
+    - stock
     type: object
   request.CUserReq:
     properties:
@@ -105,6 +219,23 @@ definitions:
     required:
     - max_user
     - name
+    type: object
+  request.UOrderStatusReq:
+    properties:
+      status:
+        type: string
+    required:
+    - status
+    type: object
+  request.UProductReq:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - name
+    - price
     type: object
   request.UUserReq:
     properties:
@@ -148,6 +279,33 @@ definitions:
       status:
         type: string
     type: object
+  response.Response-model_Cart:
+    properties:
+      data:
+        $ref: '#/definitions/model.Cart'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-model_Order:
+    properties:
+      data:
+        $ref: '#/definitions/model.Order'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-model_Product:
+    properties:
+      data:
+        $ref: '#/definitions/model.Product'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   response.Response-model_User:
     properties:
       data:
@@ -170,6 +328,15 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/response.ResponseData-array_model_Campaign'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  response.Response-response_ResponseData-array_model_Product:
+    properties:
+      data:
+        $ref: '#/definitions/response.ResponseData-array_model_Product'
       message:
         type: string
       status:
@@ -200,6 +367,15 @@ definitions:
       results:
         items:
           $ref: '#/definitions/model.Campaign'
+        type: array
+    type: object
+  response.ResponseData-array_model_Product:
+    properties:
+      pagination:
+        $ref: '#/definitions/response.Pagination'
+      results:
+        items:
+          $ref: '#/definitions/model.Product'
         type: array
     type: object
   response.ResponseData-array_model_User:
@@ -370,6 +546,416 @@ paths:
       summary: Create a new campaign
       tags:
       - campaigns
+  /carts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a cart item based on the provided cart item ID.
+      parameters:
+      - description: Cart Item ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Delete a cart item
+      tags:
+      - carts
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a Cart based on the Cart ID.
+      parameters:
+      - description: Cart ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Cart'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get Cart by ID
+      tags:
+      - carts
+  /carts/add:
+    post:
+      consumes:
+      - application/json
+      description: Add new Cart Item.
+      parameters:
+      - description: Product information
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddToCartReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Add to cart
+      tags:
+      - carts
+  /orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update Order details based on the Order ID.
+      parameters:
+      - description: Order ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.UOrderStatusReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Update Order information
+      tags:
+      - orders
+  /orders/{user_id}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Order with the provided Order information.
+      parameters:
+      - description: User ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Product information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.COrderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Create a new Order
+      tags:
+      - orders
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Product details based on the Product ID.
+      parameters:
+      - description: Product ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Delete Product information
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get the details of a Product based on the Product ID.
+      parameters:
+      - description: Product ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get Product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update Product details based on the Product ID.
+      parameters:
+      - description: Product ID
+        example: '"67ae81a6-5284-436a-a2e5-54c3ebeaa241"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product information
+        in: body
+        name: Product
+        required: true
+        schema:
+          $ref: '#/definitions/request.UProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Update Product information
+      tags:
+      - products
+  /products/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Product with the provided Product information.
+      parameters:
+      - description: Product information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.CProductReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Create a new Product
+      tags:
+      - products
+  /products/list:
+    get:
+      consumes:
+      - application/json
+      description: API Get list all Products
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit of users per page
+        in: query
+        name: limit
+        type: integer
+      - description: name
+        in: query
+        name: name
+        type: string
+      - description: Start date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: start_date
+        type: string
+      - description: End date
+        example: '"2024-12-04T00:00:00Z"'
+        format: date-time
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-response_ResponseData-array_model_Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Get list all Products
+      tags:
+      - products
+  /promo/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided registration details, such
+        as email and campaign ID.
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.RUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response-model_User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response-any'
+      summary: Register a new user
+      tags:
+      - promo
   /users/{id}:
     delete:
       consumes:
@@ -568,41 +1154,6 @@ paths:
           schema:
             $ref: '#/definitions/response.Response-any'
       summary: Get list all users
-      tags:
-      - users
-  /users/register:
-    post:
-      consumes:
-      - application/json
-      description: Registers a new user with the provided registration details, such
-        as email and campaign ID.
-      parameters:
-      - description: User information
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/request.RUserReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.Response-model_User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/response.Response-any'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Response-any'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Response-any'
-      summary: Register a new user
       tags:
       - users
   /vouchers/{id}:

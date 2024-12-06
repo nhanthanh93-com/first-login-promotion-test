@@ -8,11 +8,11 @@ import (
 
 type CampaignService interface {
 	Create(campaign model.Campaign) (*model.Campaign, error)
-	Find(r *request.GCampaignReq) (*model.Campaign, error)
-	List(r *request.LCampaignReq) ([]*model.Campaign, error)
-	Count(r *request.LCampaignReq) (int64, error)
+	Find(req *request.GCampaignReq) (*model.Campaign, error)
+	List(req *request.LCampaignReq) ([]*model.Campaign, error)
+	Count(req *request.LCampaignReq) (int64, error)
 	Update(campaign model.Campaign) (*model.Campaign, error)
-	Delete(r *request.GCampaignReq) (bool, error)
+	Delete(req *request.GCampaignReq) (bool, error)
 }
 
 type campaignService struct {
@@ -27,22 +27,22 @@ func (s *campaignService) Create(campaign model.Campaign) (*model.Campaign, erro
 	return s.campaignRepo.Create(campaign)
 }
 
-func (s *campaignService) Find(r *request.GCampaignReq) (*model.Campaign, error) {
-	return s.campaignRepo.Find(r.ID)
+func (s *campaignService) Find(req *request.GCampaignReq) (*model.Campaign, error) {
+	return s.campaignRepo.Find(req.ID)
 }
 
-func (s *campaignService) List(r *request.LCampaignReq) ([]*model.Campaign, error) {
-	return s.campaignRepo.List(r)
+func (s *campaignService) List(req *request.LCampaignReq) ([]*model.Campaign, error) {
+	return s.campaignRepo.List(req)
 }
 
-func (s *campaignService) Count(r *request.LCampaignReq) (int64, error) {
-	return s.campaignRepo.Count(r)
+func (s *campaignService) Count(req *request.LCampaignReq) (int64, error) {
+	return s.campaignRepo.Count(req)
 }
 
 func (s *campaignService) Update(user model.Campaign) (*model.Campaign, error) {
 	return s.campaignRepo.Update(user)
 }
 
-func (s *campaignService) Delete(r *request.GCampaignReq) (bool, error) {
-	return s.campaignRepo.Delete(r.ID)
+func (s *campaignService) Delete(req *request.GCampaignReq) (bool, error) {
+	return s.campaignRepo.Delete(req.ID)
 }

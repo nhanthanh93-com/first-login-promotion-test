@@ -2,6 +2,7 @@ package response
 
 import (
 	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 	"math"
 	"net/http"
@@ -60,19 +61,37 @@ func ErrorResponse(c *gin.Context, statusCode int, message string, data interfac
 }
 
 func HandleGormError(c *gin.Context, err error) {
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		NotFoundError(c, "Record not found")
-	} else if errors.Is(err, gorm.ErrInvalidData) {
-		InvalidError(c, "Invalid data: "+err.Error())
-	} else if errors.Is(err, gorm.ErrDuplicatedKey) {
-		ExistedError(c, "Duplicated key: "+err.Error())
-	} else if errors.Is(err, gorm.ErrPrimaryKeyRequired) {
-		InvalidError(c, "Primary key required: "+err.Error())
-	} else if errors.Is(err, gorm.ErrEmptySlice) {
-		InvalidError(c, "Empty input slice")
-	} else {
-		GeneralError(c, "Database error: "+err.Error())
+	if err == nil {
+		return
 	}
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		NotFoundError(c, "Record not found")
+		return
+	case errors.Is(err, gorm.ErrInvalidData):
+		InvalidError(c, "Invalid data: "+err.Error())
+		return
+	case errors.Is(err, gorm.ErrDuplicatedKey):
+		ExistedError(c, "Duplicated key: "+err.Error())
+		return
+	case errors.Is(err, gorm.ErrPrimaryKeyRequired):
+		InvalidError(c, "Primary key required: "+err.Error())
+		return
+	case errors.Is(err, gorm.ErrEmptySlice):
+		InvalidError(c, "Empty input slice")
+		return
+	}
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		switch pgErr.Code {
+		case "23505":
+			ExistedError(c, "Duplicated key: "+err.Error())
+			return
+		}
+	}
+
+	GeneralError(c, "Database error: "+err.Error())
 }
 
 func UnauthorizedError(c *gin.Context, message string) {

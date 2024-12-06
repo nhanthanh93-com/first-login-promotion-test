@@ -4,6 +4,7 @@ import (
 	"trinity/api/repository"
 	"trinity/internal/model"
 	"trinity/internal/request"
+	"trinity/pkg/app"
 )
 
 type UserService interface {
@@ -17,19 +18,44 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepo repository.UserRepository
+	appConfig *app.Config
+	userRepo  repository.UserRepository
+	cartRepo  repository.CartRepository
 }
 
-func NewUserService(userRepo repository.UserRepository) UserService {
-	return &userService{userRepo: userRepo}
+func NewUserService(appConfig *app.Config, userRepo repository.UserRepository) UserService {
+	cartRepo := repository.NewCartRepository(appConfig)
+	return &userService{appConfig, userRepo, cartRepo}
 }
 
 func (s *userService) Register(req *request.RUserReq) (*model.User, error) {
-	return s.userRepo.Register(req)
+	user, err := s.userRepo.Register(req)
+	if err != nil {
+		return nil, err
+	}
+	cart, err := s.cartRepo.Create(model.Cart{
+		UserID: user.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	user.Cart = cart
+	return user, nil
 }
 
 func (s *userService) Create(m model.User) (*model.User, error) {
-	return s.userRepo.Create(m)
+	user, err := s.userRepo.Create(m)
+	if err != nil {
+		return nil, err
+	}
+	cart, err := s.cartRepo.Create(model.Cart{
+		UserID: user.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	user.Cart = cart
+	return user, nil
 }
 
 func (s *userService) Find(r *request.GUserReq) (*model.User, error) {

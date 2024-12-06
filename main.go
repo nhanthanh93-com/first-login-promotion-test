@@ -45,6 +45,10 @@ func initializeDBConnections() {
 	model.InitUserDB(manager)
 	model.InitCampaignDB(manager)
 	model.InitVoucherDB(manager)
+	model.InitProductDB(manager)
+	model.InitCampaignsProductsDB(manager)
+	model.InitCartDB(manager)
+	model.InitCartItemDB(manager)
 }
 
 func initializeRedisConnection() {

@@ -11,6 +11,7 @@ type User struct {
 	Email      string     `json:"email,omitempty" gorm:"column:email;uniqueIndex:idx_email,unique" validate:"required"`
 	RegisterAt time.Time  `json:"register_at,omitempty" gorm:"column:register_at;default:current_timestamp"`
 	Vouchers   []*Voucher `json:"vouchers,omitempty" gorm:"foreignKey:UserID"`
+	Cart       *Cart      `json:"cart,omitempty" gorm:"foreignKey:UserID"`
 }
 
 func (m User) BeforeCreate(tx *gorm.DB) error {

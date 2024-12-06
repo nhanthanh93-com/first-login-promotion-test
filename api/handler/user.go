@@ -21,7 +21,7 @@ func NewUserHandler(userService service.UserService) UserHandler {
 
 // @Summary Register a new user
 // @Description Registers a new user with the provided registration details, such as email and campaign ID.
-// @Tags users
+// @Tags promo
 // @Accept json
 // @Produce json
 // @Param user body request.RUserReq true "User information"
@@ -29,7 +29,7 @@ func NewUserHandler(userService service.UserService) UserHandler {
 // @Failure 500 {object} response.Response[any]
 // @Failure 400 {object} response.Response[any]
 // @Failure 404 {object} response.Response[any]
-// @Router /users/register [post]
+// @Router /promo/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req request.RUserReq
 	r, err := req.Bind(c)
